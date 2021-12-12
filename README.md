@@ -1,9 +1,9 @@
 # csv-iter-parse
 
-A line-oriented CSV parse using iterables or async iterables.
+A line-oriented CSV parser using iterables or async iterables.
  
-Made for modern JavaScript ecosystem, includes only core CSV line parsing into cells.
-Constructed with ESM tree-shaking friendly packaging, as well as pragmatic CommonJS and UMD packaging.
+Made for the modern JavaScript ecosystem: includes only core CSV line-parsing into cells.
+Constructed with ESM tree-shaking friendly packaging as well as pragmatic CommonJS and UMD packaging.
 
 Inspired by how often I reach for Matthew Holt's [PapaParse](https://www.papaparse.com) library.
 
@@ -49,7 +49,7 @@ for (let row of csv_iter(csv_options, csv_content)) {
 }
 ```
 
-##### CSV Async iterable streams
+##### CSV Async Iterable Streams
 
 ```javascript
 import {csv_async_iter} from 'csv-iter-parse'
@@ -75,7 +75,7 @@ function csv_from(
   ) : array< array< string > >
 ```
 
-Parses each csv row of `iter_csv_lines` into a returned array, like `Array.from` but for CSV input.
+Parses each CSV row of `iter_csv_lines` into a returned array like `Array.from` but for CSV input.
 
 ##### `csv_iter()`
 ```javascript
@@ -85,7 +85,7 @@ function * csv_iter(
   ) : iterator< array< string >>
 ```
 
-Parses each csv row of `iter_csv_lines` and yields it.
+Parses each CSV row of `iter_csv_lines` and yields it.
 
 ```javascript
 // pseudo code
@@ -102,7 +102,7 @@ async function * csv_async_iter(
   ) : async_iterator< array< string >
 ```
 
-Awaits each new csv row of `aiter_csv_lines`, parses and yields it.
+Awaits each new CSV row of `aiter_csv_lines`, parses and yields it.
   
 ```javascript
 // pseudo code
@@ -121,15 +121,15 @@ csv_options = {
   escape: '"', // defaults to `${quote}` which defaults to '"'
   missing_endquote({line, i0, len, info}) {
     // optional callback when a CSV row is missing an endquote
+	// i0 is starting index of quote
   }
 }
 ```
 Standardizes `csv_options` for consistent interpretation by other functions.
 
-#### Per-CVS row parsing
+##### Per-CSV row parsing
 
 - `function csv_parse_row(line, info?) : array< string >`
 
 - `function csv_bind_parse_row(csv_options) : csv_parse_row`
   where `csv_parse_row` accepts a single line string and returns an array of string cells.
-
