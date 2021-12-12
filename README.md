@@ -69,19 +69,26 @@ for await (let row of csv_async_iter(csv_options, csv_content)) {
 
 ##### `csv_from()`
 ```javascript
-function csv_from(csv_options, iter_csv_lines) : array< array< string > >`
+function csv_from(
+    csv_options,
+    iter_csv_lines,
+  ) : array< array< string > >`
 ```
 
 Parses each csv row of `iter_csv_lines` into a returned array, like `Array.from` but for CSV input.
 
 ##### `csv_iter()`
 ```javascript
-function * csv_iter(csv_options, iter_csv_lines : iterator<string>)`
+function * csv_iter(
+    csv_options,
+    iter_csv_lines : iterator< array< string >>,
+  ) : iterator< array< string >>`
 ```
 
 Parses each csv row of `iter_csv_lines` and yields it.
 
 ```javascript
+// pseudo code
 for (let line of iter_csv_lines)
   yield csv_parse_row(line, ++n)
 ```
@@ -89,12 +96,16 @@ for (let line of iter_csv_lines)
 ##### `csv_async_iter()`
 
 ```javascript
-async function * csv_async_iter(csv_options, aiter_csv_lines : promse<async_iterator<string>>)`
+async function * csv_async_iter(
+    csv_options,
+    aiter_csv_lines : promse< async_iterator< string > >
+  ) : async_iterator< array< string >`
 ```
 
 Awaits each new csv row of `aiter_csv_lines`, parses and yields it.
   
 ```javascript
+// pseudo code
 for await (let line of await aiter_csv_lines)
   yield csv_parse_row(line, ++n)
 ```
