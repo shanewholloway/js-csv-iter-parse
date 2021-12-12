@@ -72,7 +72,7 @@ for await (let row of csv_async_iter(csv_options, csv_content)) {
 function csv_from(
     csv_options,
     iter_csv_lines,
-  ) : array< array< string > >`
+  ) : array< array< string > >
 ```
 
 Parses each csv row of `iter_csv_lines` into a returned array, like `Array.from` but for CSV input.
@@ -82,7 +82,7 @@ Parses each csv row of `iter_csv_lines` into a returned array, like `Array.from`
 function * csv_iter(
     csv_options,
     iter_csv_lines : iterator< array< string >>,
-  ) : iterator< array< string >>`
+  ) : iterator< array< string >>
 ```
 
 Parses each csv row of `iter_csv_lines` and yields it.
@@ -99,7 +99,7 @@ for (let line of iter_csv_lines)
 async function * csv_async_iter(
     csv_options,
     aiter_csv_lines : promse< async_iterator< string > >
-  ) : async_iterator< array< string >`
+  ) : async_iterator< array< string >
 ```
 
 Awaits each new csv row of `aiter_csv_lines`, parses and yields it.
