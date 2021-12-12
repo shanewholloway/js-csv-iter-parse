@@ -15,10 +15,32 @@ Inspired by how often I reach for Matthew Holt's [PapaParse](https://www.papapar
 
 ### Use
 
+##### CSV Array
+
+```javascript
+import {csv_from} from 'csv-iter-parse'
+
+let csv_content : string | array<string> | iterator<string> = `\
+name,value
+first,bingo
+second,bango
+third,bongo
+`
+
+let csv_result : array< array< string > > =
+  csv_from(csv_options, csv_content)
+
+for (let row of csv_result) {
+  for (let cell of row) {
+    console.log(row)
+  }
+}
+```
+
+##### CSV Iterable
+
 ```javascript
 import {csv_iter} from 'csv-iter-parse'
-
-let csv_content : string | Array<string> | iterator<string>
 
 for (let row of csv_iter(csv_options, csv_content)) {
   for (let cell of row) {
@@ -27,7 +49,7 @@ for (let row of csv_iter(csv_options, csv_content)) {
 }
 ```
 
-##### Async iterable streams
+##### CSV Async iterable streams
 
 ```javascript
 import {csv_async_iter} from 'csv-iter-parse'
@@ -45,19 +67,20 @@ for await (let row of csv_async_iter(csv_options, csv_content)) {
 
 ### Documentation
 
-- `function * csv_iter(csv_options, iterable_content : iterator<string>)`
-  Parses each csv row of `iterable_content` and yields it.
+- `function csv_from(csv_options, iter_csv_lines) : array< array< string > >
+- `function * csv_iter(csv_options, iter_csv_lines : iterator<string>)`
+  Parses each csv row of `iter_csv_lines` and yields it.
 
   ```javascript
-  for (let line of iterable_content)
+  for (let line of iter_csv_lines)
     yield csv_parse_row(line, ++n)
   ```
 
-- `async function * csv_async_iter(csv_options, async_iterable_content : promse<async_iterator<string>>)`
-  Awaits each new csv row of `async_iterable_content`, parses and yields it.
+- `async function * csv_async_iter(csv_options, aiter_csv_lines : promse<async_iterator<string>>)`
+  Awaits each new csv row of `aiter_csv_lines`, parses and yields it.
   
   ```javascript
-  for await (let line of await async_iterable_content)
+  for await (let line of await aiter_csv_lines)
     yield csv_parse_row(line, ++n)
   ```
 
@@ -67,11 +90,8 @@ for await (let row of csv_async_iter(csv_options, csv_content)) {
   ```javascript
   csv_options = {
     delimiter: ',',
-
     quote: '"',
-
     escape: '"', // defaults to `${quote}` which defaults to '"'
-
     missing_endquote({line, i0, len, info}) {
       // optional callback when a CSV row is missing an endquote
     }
@@ -85,5 +105,5 @@ for await (let row of csv_async_iter(csv_options, csv_content)) {
 - `function csv_bind_parse_row(csv_options) : csv_row`
   where `csv_row` accepts a single line string and returns an array of string cells.
 
-  `function csv_row(line, info?) : Array<string>`
+  `function csv_row(line, info?) : array<string>`
 
