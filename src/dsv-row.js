@@ -4,7 +4,7 @@ export function as_dsv_options(opt) {
   opt = {... opt}
   opt.delimiter = `${opt.delimiter || ','}`
   opt.quote = `${opt.quote || '"'}`
-  opt.escape = `${opt.escape || opt.quote}`
+  opt.escape = `${opt.escape || opt.quote+opt.quote}`
   return opt
 }
 
@@ -93,7 +93,7 @@ export function dsv_bind_parse_row(dsv_options) {
 
     // when called, i0 = idx_quote + 1
     let iz, i1 = i0
-    while (i1 < iend) {
+    while (i1 <= iend) {
       i1 = line.indexOf(quote, i1)
       if (-1 === i1) {
         // missing end quote
@@ -103,8 +103,8 @@ export function dsv_bind_parse_row(dsv_options) {
           : missing_endquote({row, line, i0, iend, info}, fn_splice)
       }
 
-      iz = line.indexOf(escape)
-      if (-1 !== iz && (i1 === iz+escape.length)) {
+      iz = line.lastIndexOf(escape, i1)
+      if (-1 !== iz && (iz >= i0) && (i1 === iz+escape.length)) {
         i1++ // escaped; start again from after escaped i1
       } else {
         row.push(line.slice(i0, i1))
@@ -113,23 +113,24 @@ export function dsv_bind_parse_row(dsv_options) {
     }
 
     // this should never happen, but just in case
-    row.push(line.slice(i0, iend+1))
-    return iend
+    throw new Error('Failed to parse quoted cell')
   }
 }
 
 export function _table_as_json(hdr) {
   return row => {
-    if (null != hdr) {
-      if (!row.length)
-        return
+    if (!row.length)
+      return
 
+    if (null == hdr) {
+      hdr = row
+    } else {
       let i=0,o={}
       for (; i<hdr.length; i++)
         if (null != row[i])
           o[hdr[i]] = row[i]
       return o
-    } else hdr = row
+    }
   }
 }
 

@@ -73,18 +73,27 @@ let spectrum = await new Promise((resolve, reject) =>
 
 spectrum && suite_main.suite('csv-spectrum', async suite => {
   let skip = `
-    quotes_and_newlines
-    newlines
-    newlines_crlf
     escaped_quotes
+    quotes_and_newlines
     json
-    empty
-    empty_crlf
+    `.split(/\s+/)
+
+  let only = `
     `.split(/\s+/)
 
   for (let {name, csv, json} of spectrum) {
     csv = csv.toString('utf-8')
     json = JSON.parse(json.toString('utf-8'))
+    {
+      for (let json_row of json) {
+        for (let k in json_row) {
+          let v = json_row[k]
+          if (/[\r\n]/.test(v)) {
+            json_row[k] = v.split(/$\r?\n?/m)
+          }
+        }
+      }
+    }
 
     let spectrum_test = t => {
       let table = csv_from(csv)
@@ -97,7 +106,9 @@ spectrum && suite_main.suite('csv-spectrum', async suite => {
       }
     }
 
-    if (skip.includes(name))
+    if (only.includes(name))
+      suite.test.only(name, spectrum_test)
+    else if (skip.includes(name))
       suite.test.skip(name, spectrum_test)
     else
       suite.test(name, spectrum_test)
