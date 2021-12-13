@@ -1,5 +1,5 @@
 
-export function as_csv_options(opt) {
+export function as_dsv_options(opt) {
   opt = {... opt}
   opt.delimiter = `${opt.delimiter || ','}`
   opt.quote = `${opt.quote || '"'}`
@@ -8,10 +8,14 @@ export function as_csv_options(opt) {
 }
 
 export const csv_parse_row = /* #__PURE__ */
-  csv_bind_parse_row()
+  dsv_bind_parse_row()
 
-export function csv_bind_parse_row(csv_options) {
-  let {delimiter, quote, escape, missing_endquote} = as_csv_options(csv_options)
+export const tsv_parse_row = /* #__PURE__ */
+  dsv_bind_parse_row({delimiter:'\t'})
+
+
+export function dsv_bind_parse_row(dsv_options) {
+  let {delimiter, quote, escape, missing_endquote} = as_dsv_options(dsv_options)
 
   return (line, info) =>
     (line = line.replace(/^[\r\n]+|[\r\n]+$/, ''))

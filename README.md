@@ -1,9 +1,10 @@
 # csv-iter-parse
 
 A line-oriented CSV parser using iterables or async iterables.
+Only the core CSV/TSV/DSV line parsing, where each returned row is an array of strings.
+All interpreting of headers and data values are left to you.
  
-Made for the modern JavaScript ecosystem: includes only core CSV line-parsing into cells.
-Constructed with ESM tree-shaking friendly packaging as well as pragmatic CommonJS and UMD packaging.
+Made for the modern JavaScript ecosystem. Constructed with ESM tree-shaking friendly modules, as well as pragmatic CommonJS and UMD packaging.
 
 Inspired by how often I reach for Matthew Holt's [PapaParse](https://www.papaparse.com) library.
 
@@ -20,17 +21,14 @@ Inspired by how often I reach for Matthew Holt's [PapaParse](https://www.papapar
 ```javascript
 import {csv_from} from 'csv-iter-parse'
 
-let csv_content : string | array<string> | iterator<string> = `\
+let csv_content = `\
 name,value
 first,bingo
 second,bango
 third,bongo
 `
 
-let csv_result : array< array< string > > =
-  csv_from(csv_options, csv_content)
-
-for (let row of csv_result) {
+for (let row of csv_from(csv_content)) {
   for (let cell of row) {
     console.log(row)
   }
@@ -42,7 +40,7 @@ for (let row of csv_result) {
 ```javascript
 import {csv_iter} from 'csv-iter-parse'
 
-for (let row of csv_iter(csv_options, csv_content)) {
+for (let row of csv_iter(csv_content)) {
   for (let cell of row) {
     console.log(row)
   }
@@ -58,7 +56,7 @@ let csv_content =
   fetch('some-content.csv')
   .then(req => res.body())
 
-for await (let row of csv_async_iter(csv_options, csv_content)) {
+for await (let row of csv_async_iter(csv_content)) {
   for (let cell of row) {
     console.log(row)
   }
@@ -67,69 +65,91 @@ for await (let row of csv_async_iter(csv_options, csv_content)) {
 
 ### Documentation
 
-##### `csv_from()`
-```javascript
-function csv_from(
-    csv_options,
-    iter_csv_lines,
-  ) : array< array< string > >
+#### `csv_from()`, `tsv_from()` and `dsv_from()`
+```typescript
+function csv_from(iter_lines : iterable< string >) : array< array< string > >
+function tsv_from(iter_lines : iterable< string >) : array< array< string > >
+function dsv_from(dsv_options, iter_lines : iterable< string >) : array< array< string > >
 ```
 
-Parses each CSV row of `iter_csv_lines` into a returned array like `Array.from` but for CSV input.
+Parses each CSV row of `iter_lines` into a returned array. Think `Array.from` CSV input.
 
-##### `csv_iter()`
-```javascript
-function * csv_iter(
-    csv_options,
-    iter_csv_lines : iterator< array< string >>,
-  ) : iterator< array< string >>
+
+#### `csv_iter()`, `tsv_iter()` and `dsv_iter()`
+```typescript
+function csv_iter(iter_lines : iterable< string >) : iterable< array< string > >
+function tsv_iter(iter_lines : iterable< string >) : iterable< array< string > >
+function dsv_iter(dsv_options, iter_lines : iterable< string >) : iterable< array< string > >
 ```
 
-Parses each CSV row of `iter_csv_lines` and yields it.
+Parses each CSV row of `iter_lines` and yields it.
 
 ```javascript
 // pseudo code
-for (let line of iter_csv_lines)
+for (let line of iter_lines)
   yield csv_parse_row(line, ++n)
 ```
 
-##### `csv_async_iter()`
+#### `csv_async_iter()`
 
-```javascript
-async function * csv_async_iter(
-    csv_options,
-    aiter_csv_lines : promse< async_iterator< string > >
-  ) : async_iterator< array< string >
+```typescript
+function csv_async_iter(aiter_lines : async_iterable< string >) : async_iterable< array< string > >
+function tsv_async_iter(aiter_lines : async_iterable< string >) : async_iterable< array< string > >
+function dsv_async_iter(dsv_options, aiter_lines : async_iterable< string >) : async_iterable< array< string > >
 ```
 
-Awaits each new CSV row of `aiter_csv_lines`, parses and yields it.
+Awaits each new CSV row of `aiter_lines`, parses and yields it.
   
 ```javascript
 // pseudo code
-for await (let line of await aiter_csv_lines)
+for await (let line of await aiter_lines)
   yield csv_parse_row(line, ++n)
 ```
 
-##### `csv_options`
+##### Async iterable utilities
+
+```typescript
+async function * aiter_stream_lines(stream : async_iterable<string> | ReadableStream) : async_iterable<string>
+async function * aiter_stream(stream : async_iterable<string> | ReadableStream) : async_iterable<string>
+async function * aiter_lines(aiter_utf8 : async_iterable<string>) : async_iterable<string>
+async function * aiter_rx_split(rx_split : regexp, aiter_utf8 : async_iterable<string>) : async_iterable<string>
+```
+
+- `aiter_stream_lines(stream)` returns composed `aiter_lines(aiter_stream(stream))`
+- `aiter_stream(stream)` is an adapter for async iteration over a `ReadableStream`; defers to existing implementation if present.
+- `aiter_lines(aiter_utf8)` returns composed `aiter_rx_split(/$\r?\n?/m, aiter_utf8)`
+- `aiter_rx_split(rx_split, aiter_utf8)` buffers `aiter_utf8` and returns complete splits. e.g. complete lines.
+
+#### `dsv_options`
 
 ```javascript
-function as_csv_options(csv_options) : csv_options
+function as_dsv_options(dsv_options) : dsv_options
 
-csv_options = {
+dsv_options = {
   delimiter: ',',
   quote: '"',
   escape: '"', // defaults to `${quote}` which defaults to '"'
-  missing_endquote({line, i0, len, info}) {
+  missing_endquote({row, line, i0, iend, info}, fn_splice) {
     // optional callback when a CSV row is missing an endquote
-	// i0 is starting index of quote
+    // i0 is starting index of quote
+    return fn_splice
   }
 }
 ```
-Standardizes `csv_options` for consistent interpretation by other functions.
+Standardizes `dsv_options` for consistent interpretation by other functions.
 
 ##### Per-CSV row parsing
 
-- `function csv_parse_row(line, info?) : array< string >`
+- `function dsv_bind_parse_row(dsv_options) : dsv_parse_row`
+  Retunrs a bound `dsv_parse_row` function for the given `dsv_options`.
 
-- `function csv_bind_parse_row(csv_options) : csv_parse_row`
-  where `csv_parse_row` accepts a single line string and returns an array of string cells.
+- `function dsv_parse_row(line, info?) : array< string > | function(line,info)`
+  Parses a line of DSV into an array of strings.
+  If the row is continued via an unclosed quote, a closure to continue the parsing is returned.
+
+- `csv_parse_row = dsv_bind_parse_row({delimiter: ',', quote: '"', escape: '"'})`
+  Pre-bound for comma-seperated CSV row parsing.
+
+- `tsv_parse_row = dsv_bind_parse_row({delimiter: '\t', quote: '"', escape: '"'})`
+  Pre-bound for tab-seperated TSV row parsing.
+

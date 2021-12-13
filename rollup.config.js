@@ -4,10 +4,13 @@ import pkg from './package.json'
 const min_plugins = [ rpi_terser() ]
 
 export default [
-  ... add_out('csv-row'),
+  ... add_out('dsv-row'),
+  ... add_out('index', {out_name: pkg.name}),
+
   ... add_out('csv-iter'),
   ... add_out('csv-aiter'),
-  ... add_out('index', {out_name: pkg.name}),
+  ... add_out('tsv-iter'),
+  ... add_out('tsv-aiter'),
 ]
 
 function * add_out(src_name, opt={}) {

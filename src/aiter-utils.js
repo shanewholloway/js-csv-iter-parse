@@ -1,7 +1,7 @@
 
-export async function * aiter_stream(stream) {
+export async function * aiter_stream(stream, no_default) {
   // adapter for ReadableStream while asyncIterator is finalized
-  if (stream[Symbol.asyncIterator])
+  if (!no_default && stream[Symbol.asyncIterator])
     return yield * stream
 
   let reader = stream.getReader()
@@ -20,10 +20,10 @@ export async function * aiter_stream(stream) {
 export async function * aiter_rx_split(rx_split, aiter_utf8) {
   let buf = ''
   for await (let sz of aiter_utf8) {
-    let lst = (buf + sz).split(rx_split)
-    buf = lst.pop()
-    for (let line of lst)
-      yield line
+    let parts = (buf + sz).split(rx_split)
+    buf = parts.pop()
+    for (let each of parts)
+      yield each
   }
 
   if (buf)
@@ -33,5 +33,6 @@ export async function * aiter_rx_split(rx_split, aiter_utf8) {
 export const aiter_lines = aiter_utf8 =>
   aiter_rx_split(/$\r?\n?/m, aiter_utf8)
 
-export const aiter_text_stream = stream =>
+export const aiter_stream_lines = stream =>
   aiter_lines(aiter_stream(stream))
+
