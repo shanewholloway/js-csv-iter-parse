@@ -19,68 +19,95 @@ export function csv_bind_parse_row(csv_options) {
         ? _quoted_csv_line(line, info)
         : line.split(delimiter) // fast-path with no quotes
 
-  function _quoted_csv_line(line, info) {
+  function _quoted_csv_line(line, info, row, cursor) {
     // called when CSV line contains a quote character
-    let res, cursor = 0, len = line.length
-    let idx_quote = line.indexOf(quote, 0)
+    row = row || []
+    cursor = cursor|0
+    let iend = line.length - 1
+    let idx_quote = line.indexOf(quote, cursor)
     let idx_delim = line.lastIndexOf(delimiter, idx_quote)
 
     if (-1 !== idx_delim) {
       // fast-path the leading cells up to the first cell with a quote
-      res = line.slice(0, idx_delim).split(delimiter)
+      row.push(... line.slice(cursor, idx_delim).split(delimiter))
       cursor = idx_delim + delimiter.length
       idx_delim = line.indexOf(delimiter, cursor)
-    } else res = [];
+    }
 
     for(;;) {
       if (-1 === idx_quote)
         // no more quotes in line; fast-path the remainder
-        return res.concat(
+        return row.concat(
           line.slice(cursor).split(delimiter))
 
 
       if (-1!==idx_delim && idx_delim < idx_quote) {
         // there is delimiter before the next quote
         // emit the next cell
-        res.push(line.slice(cursor, idx_delim))
+        row.push(line.slice(cursor, idx_delim))
         cursor = idx_delim + delimiter.length
       } else {
         // idx_quote is in current cell
-        let [i0, i1, ic] = _quoted_cell(line, idx_quote+1, len, info)
-        res.push(line.slice(i0, i1))
-        cursor = Math.max(ic, line.indexOf(delimiter, ic)+delimiter.length)
+        let ans = _quoted_cell(row, line, idx_quote+1, iend, info)
+        if ('function' === typeof ans)
+          return ans // read continued quote
+        cursor = Math.max(ans, line.indexOf(delimiter, ans)+delimiter.length)
       }
 
-      if (cursor+1 >= len)
-        return res
+      if (cursor >= iend)
+        return row
 
       idx_delim = line.indexOf(delimiter, cursor)
       idx_quote = line.indexOf(quote, cursor)
     }
   }
 
-  function _quoted_cell(line, i0, len, info) {
+  function _csv_splice(row, line, info) {
+    // called when CSV line is continued from a previous line with an unmatched quote
+
+    // idx_quote is in current cell
+    let tail = row[row.length-1]
+    let ans = _quoted_cell(row, line, 0, line.length, info)
+
+    if ('function' === typeof ans) {
+      // fixup tail with _quoted_cell result
+      tail.push(... row.pop())
+      return ans // read continued again quote
+    } else tail.push(row.pop())
+
+    // finished quote; resume csv quoted line alg from next delimiter
+    let cursor = Math.max(ans, line.indexOf(delimiter, ans)+delimiter.length)
+    return (cursor >= line.length-1) ? row
+      : _quoted_csv_line(line, info, row, cursor)
+  }
+
+  function _quoted_cell(row, line, i0, iend, info) {
+    // called for a quoted cell inside a csv line
+
     // i0 = idx_quote + 1
     let iz, i1 = i0
-    while (i1 < len) {
+    while (i1 < iend) {
       i1 = line.indexOf(quote, i1)
       if (-1 === i1) {
         // missing end quote
-        if (missing_endquote)
-          missing_endquote({line, i0, len, info})
-        return [i0, len, len]
+        row.push([line.slice(i0)])
+        let fn_splice = _csv_splice.bind(null, row)
+        return ! missing_endquote ? fn_splice
+          : missing_endquote({row, line, i0, iend, info}, fn_splice)
       }
 
       iz = line.indexOf(escape)
       if (-1 !== iz && (i1 === iz+escape.length)) {
         i1++ // escaped; start again from after escaped i1
       } else {
-        return [i0, i1, i1+quote.length]
+        row.push(line.slice(i0, i1))
+        return i1+quote.length
       }
     }
 
     // this should never happen, but just in case
-    return [i0, len, len]
+    row.push(line.slice(i0, iend+1))
+    return iend
   }
 }
 
