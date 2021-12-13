@@ -1,5 +1,6 @@
-import {dsv_bind_parse_row, csv_parse_row, tsv_parse_row} from './dsv-row.js'
+import {dsv_bind_parse_row, csv_parse_row, tsv_parse_row, _table_as_json} from './dsv-row.js'
 import {aiter_stream_lines} from './aiter-utils.js'
+import {_is_fn, _find_fn} from './_utils.js'
 
 
 const _as_aiter_lines = aiter_lines => (
@@ -7,12 +8,12 @@ const _as_aiter_lines = aiter_lines => (
   ('string' === typeof aiter_lines)
     ? aiter_lines.split(/$\r?\n?/m)
 
-  // autodetect async iterables
-  : aiter_lines[Symbol.asyncIterator]
-    ? aiter_lines
+  // autodetect Web (fetch) Response
+  : _find_fn(aiter_lines, 'blob', 'json', 'text')
+    ? aiter_stream_lines(aiter_lines.body)
 
-  // autodetect ReadableStream
-  : 'function' === typeof aiter_lines.getReader
+  // autodetect Web ReadableStream or NodeJS readable stream
+  : _find_fn(aiter_lines, 'getReader', 'pipe', 'pipeTo')
     ? aiter_stream_lines(aiter_lines)
 
   : aiter_lines
@@ -43,10 +44,21 @@ export async function * _dsv_async_iter(dsv_parse_row, aiter_dsv_src, autodetect
   aiter_dsv_src = await autodetect(await aiter_dsv_src)
   for await (let line of aiter_dsv_src) {
     let row = dsv_feed(line, ++n)
-    if ('function' !== typeof row) {
+    if (_is_fn(row)) 
+      dsv_feed = row
+    else {
       dsv_feed = dsv_parse_row
       yield row
-    } else dsv_feed = row
+    } 
+  }
+}
+
+export async function * table_aiter_json(aiter_rows) {
+  let as_json = _table_as_json()
+  for await (let row of aiter_rows) {
+    row = as_json(row)
+    if (row)
+      yield row
   }
 }
 

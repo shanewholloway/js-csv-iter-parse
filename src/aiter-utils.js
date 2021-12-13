@@ -19,7 +19,11 @@ export async function * aiter_stream(stream, no_default) {
 
 export async function * aiter_rx_split(rx_split, aiter_utf8) {
   let buf = ''
+  let utf8 = new TextDecoder('utf8')
   for await (let sz of aiter_utf8) {
+    if ('string' !== typeof sz)
+      sz = utf8.decode(sz)
+
     let parts = (buf + sz).split(rx_split)
     buf = parts.pop()
     for (let each of parts)

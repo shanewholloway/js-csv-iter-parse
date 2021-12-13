@@ -1,7 +1,9 @@
 import { terser as rpi_terser } from 'rollup-plugin-terser'
+import rpi_resolve from '@rollup/plugin-node-resolve'
 import pkg from './package.json'
 
-const min_plugins = [ rpi_terser() ]
+const test_plugins = [rpi_resolve()]
+const min_plugins = null && [ rpi_terser() ]
 
 export default [
   ... add_out('dsv-row'),
@@ -11,6 +13,9 @@ export default [
   ... add_out('csv-aiter'),
   ... add_out('tsv-iter'),
   ... add_out('tsv-aiter'),
+
+  {input: 'test/simple.web.js', plugins: test_plugins,
+    output: {file: 'test/esm/simple.web.js', format: 'es', sourcemap: true}},
 ]
 
 function * add_out(src_name, opt={}) {

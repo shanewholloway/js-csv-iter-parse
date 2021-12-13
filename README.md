@@ -52,11 +52,13 @@ for (let row of csv_iter(csv_content)) {
 ```javascript
 import {csv_async_iter} from 'csv-iter-parse'
 
-let csv_content =
-  fetch('some-content.csv')
-  .then(req => res.body())
+// async_csv_content can be a Web Response,
+// or a Web ReadableStream,
+// or a NodeJS readable stream
+// or an async iterable
+let async_csv_content = fetch('some-content.csv')
 
-for await (let row of csv_async_iter(csv_content)) {
+for await (let row of csv_async_iter(async_csv_content)) {
   for (let cell of row) {
     console.log(row)
   }
