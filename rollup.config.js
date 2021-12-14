@@ -3,7 +3,7 @@ import rpi_resolve from '@rollup/plugin-node-resolve'
 import pkg from './package.json'
 
 const test_plugins = [rpi_resolve()]
-const min_plugins = null && [ rpi_terser() ]
+const min_plugins = [ rpi_terser() ]
 
 export default [
   ... add_out('dsv-row'),

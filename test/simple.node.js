@@ -72,19 +72,11 @@ let spectrum = await new Promise((resolve, reject) =>
     err ? reject(err) : resolve(data)))
 
 spectrum && suite_main.suite('csv-spectrum', async suite => {
-  let skip = `
-    escaped_quotes
-    quotes_and_newlines
-    json
-    `.split(/\s+/)
-
-  let only = `
-    `.split(/\s+/)
-
   for (let {name, csv, json} of spectrum) {
     csv = csv.toString('utf-8')
     json = JSON.parse(json.toString('utf-8'))
-    {
+
+    { // convert csv-spectrum CR/LF to arrays of lines
       for (let json_row of json) {
         for (let k in json_row) {
           let v = json_row[k]
@@ -95,23 +87,11 @@ spectrum && suite_main.suite('csv-spectrum', async suite => {
       }
     }
 
-    let spectrum_test = t => {
+    suite.test(name, ({assert}) => {
       let table = csv_from(csv)
       let obj = table_as_json(table)
-      try {
-        t.assert.equal(obj, json)
-      } catch (err) {
-        console.log({name, obj, json, csv})
-        throw err
-      }
-    }
-
-    if (only.includes(name))
-      suite.test.only(name, spectrum_test)
-    else if (skip.includes(name))
-      suite.test.skip(name, spectrum_test)
-    else
-      suite.test(name, spectrum_test)
+      assert.equal(obj, json)
+    })
   }
 })
 
@@ -119,6 +99,6 @@ spectrum && suite_main.suite('csv-spectrum', async suite => {
 
 let tid = setTimeout(Boolean, 15000) // keep nodejs open during async
 
-await suite_main.run_main(basic_rptr, {process, assert})
+await suite_main.run_main(basic_rptr, {process})
 
 tid = clearTimeout(tid)

@@ -12,53 +12,89 @@ export async function expected_table(table_result) {
   }
 }
 
-export let expected_table_result = [
-  ['title', 'name'],
-  ['test title 01', 'test name 01'],
-  ['', 'test name 02'],
-  ['test title 03'],
+export const tc_simple = {
+  src: [
+    ['title','name'],
+    ['test title 01','test name 01'],
+    ['','test name 02'],
+    ['test title 03'],
+  ], table: [
+    ['title', 'name'],
+    ['test title 01', 'test name 01'],
+    ['', 'test name 02'],
+    ['test title 03'],
+  ]}
 
-  ['test title 04',''],
-  ['  test title 05  ','  test name 05  '],
-  [' ','  test name 06  ', ' '],
+export const tc_whitespace = {
+  src: [
+    ['test title 04',''],
+    ['  test title 05  ','  test name 05  '],
+    [' ','  test name 06  ', ' '],
 
-  ['test title aa', 'test name aa'],
-  ['test title bb', 'test name bb'],
-  ['test title cc', 'test name cc'],
+  ], table: [
+    ['test title 04',''],
+    ['  test title 05  ','  test name 05  '],
+    [' ','  test name 06  ', ' '],
+  ]}
 
-  [['test ', 'title dd'], 'test name dd'],
-  [['test title', ' ee'], ['test ', 'name ee']],
+export const tc_quotes = {
+  src: [
+    ['test title aa','"test name aa"'],
+    ['"test title bb"','test name bb'],
+    ['"test title cc"','"test name cc"'],
+  ], table: [
+    ['test title aa', 'test name aa'],
+    ['test title bb', 'test name bb'],
+    ['test title cc', 'test name cc'],
+  ]}
 
-  ['test title , ff', 'test name \t ff'],
+export const tc_split_first = {
+  src: [
+    ['"test '],
+    ['title dd"','test name dd'],
+  ], table: [
+    [['test ', 'title dd'], 'test name dd'],
+  ]}
 
-  [ 'test title gg', ['test ', 'name , \t continued', 'gg ended'] ],
+export const tc_split_both = {
+  src: [
+    ['"test title'],
+    [' ee"','"test '],
+    ['name ee"'],
+  ], table: [
+    [['test title', ' ee'], ['test ', 'name ee']],
+  ]}
+
+export const tc_dsv_chars = {
+  src: [
+    ['"test title , ff"', '"test name \t ff"'],
+  ], table: [
+    ['test title , ff', 'test name \t ff'],
+  ]}
+
+export const tc_split_multi = {
+  src: [
+    ['"test title gg"', '"test '],
+    ['name , \t continued'],
+    ['gg ended"'],
+  ], table: [
+    [ 'test title gg', ['test ', 'name , \t continued', 'gg ended'] ],
+  ]}
+
+
+export let all_tc = [
+  tc_simple,
+  tc_whitespace,
+  tc_quotes,
+  tc_split_first,
+  tc_split_both,
+  tc_dsv_chars,
+  tc_split_multi,
 ]
 
-export let source_array = [
-  ['title','name'],
-  ['test title 01','test name 01'],
-  ['','test name 02'],
-  ['test title 03'],
+export let source_array =
+  all_tc.flatMap(e => e.src)
 
-  ['test title 04',''],
-  ['  test title 05  ','  test name 05  '],
-  [' ','  test name 06  ', ' '],
-
-  ['test title aa','"test name aa"'],
-  ['"test title bb"','test name bb'],
-  ['"test title cc"','"test name cc"'],
-
-  ['"test '],
-  ['title dd"','test name dd'],
-
-  ['"test title'],
-  [' ee"','"test '],
-  ['name ee"'],
-
-  ['"test title , ff"', '"test name \t ff"'],
-
-  ['"test title gg"', '"test '],
-  ['name , \t continued'],
-  ['gg ended"'],
-];
+export let expected_table_result =
+  all_tc.flatMap(e => e.table)
 

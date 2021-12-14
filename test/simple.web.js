@@ -33,5 +33,5 @@ suite_main.suite('web', suite => {
   })
 })
 
-await suite_main.run_main(basic_rptr, {assert})
+await suite_main.run_main(basic_rptr, {})
 

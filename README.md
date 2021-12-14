@@ -130,10 +130,10 @@ function as_dsv_options(dsv_options) : dsv_options
 dsv_options = {
   delimiter: ',',
   quote: '"',
-  escape: '"', // defaults to `${quote}` which defaults to '"'
-  missing_endquote({row, line, i0, iend, info}, fn_splice) {
+  escape: '""', // defaults to `${quote+quote}` which defaults to '""'
+  missing_endquote({row, line, info, i0, cell}, fn_splice) {
     // optional callback when a CSV row is missing an endquote
-    // i0 is starting index of quote
+    // i0 is starting index of quote cell content
     return fn_splice
   }
 }
