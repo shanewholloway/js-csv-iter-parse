@@ -69,9 +69,9 @@ for await (let row of csv_async_iter(async_csv_content)) {
 
 #### `csv_from()`, `tsv_from()` and `dsv_from()`
 ```typescript
-function csv_from(iter_lines : iterable< string >) : array< array< string > >
-function tsv_from(iter_lines : iterable< string >) : array< array< string > >
-function dsv_from(dsv_options, iter_lines : iterable< string >) : array< array< string > >
+function csv_from(iter_lines : iterable< string >) : array< array< string > >;
+function tsv_from(iter_lines : iterable< string >) : array< array< string > >;
+function dsv_from(dsv_options, iter_lines : iterable< string >) : array< array< string > >;
 ```
 
 Parses each CSV row of `iter_lines` into a returned array. Think `Array.from` CSV input.
@@ -79,9 +79,9 @@ Parses each CSV row of `iter_lines` into a returned array. Think `Array.from` CS
 
 #### `csv_iter()`, `tsv_iter()` and `dsv_iter()`
 ```typescript
-function csv_iter(iter_lines : iterable< string >) : iterable< array< string > >
-function tsv_iter(iter_lines : iterable< string >) : iterable< array< string > >
-function dsv_iter(dsv_options, iter_lines : iterable< string >) : iterable< array< string > >
+function csv_iter(iter_lines : iterable< string >) : iterable< array< string > >;
+function tsv_iter(iter_lines : iterable< string >) : iterable< array< string > >;
+function dsv_iter(dsv_options, iter_lines : iterable< string >) : iterable< array< string > >;
 ```
 
 Parses each CSV row of `iter_lines` and yields it.
@@ -95,9 +95,9 @@ for (let line of iter_lines)
 #### `csv_async_iter()`
 
 ```typescript
-function csv_async_iter(aiter_lines : async_iterable< string >) : async_iterable< array< string > >
-function tsv_async_iter(aiter_lines : async_iterable< string >) : async_iterable< array< string > >
-function dsv_async_iter(dsv_options, aiter_lines : async_iterable< string >) : async_iterable< array< string > >
+function csv_async_iter(aiter_lines : async_iterable< string >) : async_iterable< array< string > >;
+function tsv_async_iter(aiter_lines : async_iterable< string >) : async_iterable< array< string > >;
+function dsv_async_iter(dsv_options, aiter_lines : async_iterable< string >) : async_iterable< array< string > >;
 ```
 
 Awaits each new CSV row of `aiter_lines`, parses and yields it.
@@ -111,10 +111,10 @@ for await (let line of await aiter_lines)
 ##### Async iterable utilities
 
 ```typescript
-async function * aiter_stream_lines(stream : async_iterable<string> | ReadableStream) : async_iterable<string>
-async function * aiter_stream(stream : async_iterable<string> | ReadableStream) : async_iterable<string>
-async function * aiter_lines(aiter_utf8 : async_iterable<string>) : async_iterable<string>
-async function * aiter_rx_split(rx_split : regexp, aiter_utf8 : async_iterable<string>) : async_iterable<string>
+async function * aiter_stream_lines(stream : async_iterable<string> | ReadableStream) : async_iterable<string>;
+async function * aiter_stream(stream : async_iterable<string> | ReadableStream) : async_iterable<string>;
+async function * aiter_lines(aiter_utf8 : async_iterable<string>) : async_iterable<string>;
+async function * aiter_rx_split(rx_split : regexp, aiter_utf8 : async_iterable<string>) : async_iterable<string>;
 ```
 
 - `aiter_stream_lines(stream)` returns composed `aiter_lines(aiter_stream(stream))`
@@ -124,8 +124,8 @@ async function * aiter_rx_split(rx_split : regexp, aiter_utf8 : async_iterable<s
 
 #### `dsv_options`
 
-```javascript
-function as_dsv_options(dsv_options) : dsv_options
+```typescript
+function as_dsv_options(dsv_options) : dsv_options;
 
 dsv_options = {
   delimiter: ',',
@@ -138,6 +138,7 @@ dsv_options = {
   }
 }
 ```
+
 Standardizes `dsv_options` for consistent interpretation by other functions.
 
 ##### Per-CSV row parsing
