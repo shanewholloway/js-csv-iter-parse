@@ -42,10 +42,12 @@ export const tc_quotes = {
     ['test title aa','"test name aa"'],
     ['"test title bb"','test name bb'],
     ['"test title cc"','"test name cc"'],
+    ['"test empty dd"','test value dd', '""'],
   ], table: [
     ['test title aa', 'test name aa'],
     ['test title bb', 'test name bb'],
     ['test title cc', 'test name cc'],
+    ['test empty dd', 'test value dd', ''],
   ]}
 
 export const tc_split_first = {

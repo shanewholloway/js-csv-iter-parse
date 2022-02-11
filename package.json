@@ -1,6 +1,6 @@
 {
   "name": "csv-iter-parse",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Line-oriented CSV parse using iterables or async iterables. ESM tree shakable",
   "keywords": [
     "csv",

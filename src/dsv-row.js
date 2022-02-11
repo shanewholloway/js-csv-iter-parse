@@ -126,7 +126,7 @@ export function dsv_bind_parse_row(dsv_options) {
       }
 
       idx_escape = line.indexOf(escape, cursor)
-      if (-1 === idx_escape) {
+      if (-1 === idx_escape || idx_quote < idx_escape) {
         // cell complete;
         // find the next delimiter after the end quote
         idx_delim = line.indexOf(delimiter, idx_quote)
