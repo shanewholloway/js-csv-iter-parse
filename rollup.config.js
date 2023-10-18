@@ -1,6 +1,6 @@
-import { terser as rpi_terser } from 'rollup-plugin-terser'
+import rpi_terser from '@rollup/plugin-terser'
 import rpi_resolve from '@rollup/plugin-node-resolve'
-import pkg from './package.json'
+import pkg from './package.json' assert { type: 'json' }
 
 const test_plugins = [rpi_resolve()]
 const min_plugins = [ rpi_terser() ]
