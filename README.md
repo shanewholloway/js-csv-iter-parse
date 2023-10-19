@@ -21,7 +21,7 @@ Inspired by how often I reach for Matthew Holt's [PapaParse](https://www.papapar
 ```javascript
 import {csv_from} from 'csv-iter-parse'
 
-let csv_content = `\
+let csv_content = `
 name,value
 first,bingo
 second,bango
@@ -29,9 +29,11 @@ third,bongo
 `
 
 for (let row of csv_from(csv_content)) {
+  console.group('row:', row)
   for (let cell of row) {
-    console.log(row)
+    console.log('cell:', cell)
   }
+  console.groupEnd()
 }
 ```
 
@@ -41,9 +43,11 @@ for (let row of csv_from(csv_content)) {
 import {csv_iter} from 'csv-iter-parse'
 
 for (let row of csv_iter(csv_content)) {
+  console.group('row:', row)
   for (let cell of row) {
-    console.log(row)
+    console.log('cell:', cell)
   }
+  console.groupEnd()
 }
 ```
 
@@ -59,9 +63,11 @@ import {csv_async_iter} from 'csv-iter-parse'
 let async_csv_content = fetch('some-content.csv')
 
 for await (let row of csv_async_iter(async_csv_content)) {
+  console.group('row:', row)
   for (let cell of row) {
-    console.log(row)
+    console.log('cell:', cell)
   }
+  console.groupEnd()
 }
 ```
 
@@ -89,7 +95,7 @@ Parses each CSV row of `iter_lines` and yields it.
 ```javascript
 // pseudo code
 for (let line of iter_lines)
-  yield csv_parse_row(line, ++n)
+  yield csv_parse_row(line)
 ```
 
 #### `csv_async_iter()`
@@ -104,8 +110,8 @@ Awaits each new CSV row of `aiter_lines`, parses and yields it.
   
 ```javascript
 // pseudo code
-for await (let line of await aiter_lines)
-  yield csv_parse_row(line, ++n)
+for await (let line of aiter_lines)
+  yield csv_parse_row(line)
 ```
 
 ##### Async iterable utilities
