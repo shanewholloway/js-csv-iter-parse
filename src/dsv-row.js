@@ -158,20 +158,3 @@ export function dsv_bind_parse_row(dsv_options) {
   }
 }
 
-export function _table_as_json(hdr) {
-  return row => {
-    if (!row.length)
-      return
-
-    if (null == hdr) {
-      hdr = row
-    } else {
-      let i=0,o={}
-      for (; i<hdr.length; i++)
-        if (null != row[i])
-          o[hdr[i]] = row[i]
-      return o
-    }
-  }
-}
-
